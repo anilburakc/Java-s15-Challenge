@@ -1,4 +1,4 @@
 public interface IBillCreator {
-    void calculateFine();
-    void createBill();
+    int calculateFine(int gecikenGun);
+    int createBill(int gecikenGun);
 }
