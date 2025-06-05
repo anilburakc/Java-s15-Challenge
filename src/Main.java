@@ -1,16 +1,17 @@
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        BookServices services = new BookServices();
         Library library = Library.getInstance();
         BillingService billingService = new BillingService();
-        Librarian librarian = new Librarian("kütüphaneci", "1234", billingService);
+        BookServices services = new BookServices(library.getBooks());
+        Librarian librarian = new Librarian("kutuphaneci", "1234", billingService);
+
+        Reader reader1 = new Reader("anil");
+        Reader reader2 = new Reader("burak");
+
         Scanner scanner = new Scanner(System.in);
 
-        // Örnek kitapları ekle
         library.newBook("STUDY-001", new StudyBooks(101, "Robert Lafore", "Data Structures in Java", 150, true, "2. Baskı", "2023-09-01", services, null));
         library.newBook("STUDY-002", new StudyBooks(102, "Al Sweigart", "Automate the Boring Stuff", 130, true, "1. Baskı", "2022-11-20", services, null));
         library.newBook("STUDY-003", new StudyBooks(103, "Stuart Russell", "AI: A Modern Approach", 220, true, "4. Baskı", "2024-05-10", services, null));
@@ -24,8 +25,7 @@ public class Main {
         library.newBook("JOURNAL-003", new JournalBooks(303, "Dr. Susan Lee", "CRISPR and Genetic Editing", 110, true, "2024/12", "2024-12-05", services, null));
 
 
-
-
+        library.newBook("STUDY-004", new StudyBooks(104, "Robert Lafore", "Java Programming Patterns", 160, true, "1. Baskı", "2025-06-04", services, null));
 
         while (true) {
             System.out.println("\n--- KÜTÜPHANE OTOMASYON SİSTEMİ ---");
@@ -53,7 +53,7 @@ public class Main {
                     String title = scanner.nextLine();
                     System.out.print("Price: ");
                     int price = scanner.nextInt(); scanner.nextLine();
-                    Book book = new StudyBooks(id, author, title, price, true, "1. Baskı", "2025-01-01", null, null);
+                    Book book = new StudyBooks(id, author, title, price, true, "1. Baskı", "2025-01-01", services, null);
                     library.newBook("BOOK-" + id, book);
                     break;
 
@@ -63,71 +63,100 @@ public class Main {
                     System.out.print("Aranacak değer: ");
                     String val = scanner.nextLine();
                     switch (type.toLowerCase()) {
-                        case "id":
-                            library.searchById(val);
-                            break;
-                        case "name":
-                            library.searchByName(val);
-                            break;
-                        case "author":
-                            library.searchByAuthor(val);
-                            break;
-                        default:
-                            System.out.println("Geçersiz arama tipi.");
+                        case "id" -> services.searchById(val);
+                        case "name" -> services.searchByName(val);
+                        case "author" -> services.searchByAuthor(val);
+                        default -> System.out.println("Geçersiz arama tipi.");
                     }
                     break;
 
                 case 3:
-                    System.out.print("Güncellenecek kitap ID (örnek: BOOK-101): ");
+                    System.out.print("Güncellenecek kitap ID: ");
                     String updateId = scanner.nextLine();
+
                     System.out.print("Yeni başlık: ");
                     String newTitle = scanner.nextLine();
+
                     System.out.print("Yeni yazar: ");
                     String newAuthor = scanner.nextLine();
+
                     System.out.print("Yeni fiyat: ");
                     int newPrice = scanner.nextInt(); scanner.nextLine();
-                    Book updatedBook = new StudyBooks(0, newAuthor, newTitle, newPrice, true, "Güncel Baskı", "2025-06-01", null, null);
-                    library.updateBook(updateId, updatedBook);
+
+                    System.out.print("Kitap türü (study/journal/magazine): ");
+                    String bookType = scanner.nextLine();
+
+                    Book updatedBook;
+
+                    switch (bookType.toLowerCase()) {
+                        case "study" -> updatedBook = new StudyBooks(0, newAuthor, newTitle, newPrice, true, "Güncel Baskı", "2025-06-01", services, null);
+                        case "journal" -> updatedBook = new JournalBooks(0, newAuthor, newTitle, newPrice, true, "Güncel Baskı", "2025-06-01", services, null);
+                        case "magazine" -> updatedBook = new MagazineBooks(0, newAuthor, newTitle, newPrice, true, "Güncel Baskı", "2025-06-01", services, null);
+                        default -> {
+                            System.out.println("Geçersiz kitap türü.");
+                            return;
+                        }
+                    }
+
+                    librarian.updateBook(updateId, updatedBook);
                     break;
 
                 case 4:
-                    System.out.print("Silinecek kitap ID (örnek: BOOK-101): ");
+                    System.out.print("Silinecek kitap ID: ");
                     String removeId = scanner.nextLine();
-                    library.removeBook(removeId);
+                    librarian.removeBook(removeId);
                     break;
 
                 case 5:
                     System.out.print("Kategori (study/journal/magazine): ");
                     String category = scanner.nextLine();
-                    library.listBooksByCategory(category);
+                    reader1.listBooksByCategory(category);
                     break;
 
                 case 6:
                     System.out.print("Yazar adı: ");
                     String yazar = scanner.nextLine();
-                    library.searchByAuthor(yazar);
+                    services.searchByAuthor(yazar);
                     break;
 
                 case 7:
-                    System.out.print("Kitap adı (title): ");
+                    System.out.print("Kitap adı: ");
                     String bookName = scanner.nextLine();
                     System.out.print("Okuyucu adı: ");
                     String readerName = scanner.nextLine();
-                    library.lendBook(bookName, readerName);
+                    if (readerName.equalsIgnoreCase("ahmet")) {
+                        reader1.barrowBook(bookName, readerName);
+                    } else {
+                        reader2.barrowBook(bookName, readerName);
+                    }
                     break;
 
                 case 8:
-                    System.out.print("İade edilecek kitap adı (title): ");
+                    System.out.print("İade edilecek kitap adı: ");
                     String returnBookName = scanner.nextLine();
-                    library.takeBackBook(returnBookName);
+
+                    System.out.print("Okuyucu adı: ");
+                    String returnReaderName = scanner.nextLine();
+
+                    if (returnReaderName.equalsIgnoreCase("anil")) {
+                        reader1.returnBook(returnBookName, returnReaderName);
+                    } else if (returnReaderName.equalsIgnoreCase("burak")) {
+                        reader2.returnBook(returnBookName, returnReaderName);
+                    } else {
+                        System.out.println("Geçersiz kullanıcı.");
+                    }
                     break;
 
                 case 9:
-                    System.out.print("Satın alınacak kitap ID (örnek: BOOK-101): ");
+                    System.out.print("Satın alınacak kitap ID: ");
                     String purchaseId = scanner.nextLine();
                     System.out.print("Okuyucu adı: ");
                     String buyer = scanner.nextLine();
-                    library.purchaseBook(purchaseId, buyer);
+                    if (buyer.equalsIgnoreCase("anil")) {
+                        reader1.purchaseBook(purchaseId, buyer);
+                    } else {
+                        reader2.purchaseBook(purchaseId, buyer);
+                    }
                     break;
 
                 case 10:
@@ -138,4 +167,5 @@ public class Main {
                     System.out.println("Geçersiz seçim.");
             }
         }
-}}
+    }
+}

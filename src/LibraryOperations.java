@@ -7,14 +7,14 @@ public interface LibraryOperations {
 
     void newBook(String key, Book book);
 
-    void lendBook(String bookName, String readerName);
+    //void lendBook(String bookName, String readerName);
 
-    void takeBackBook(String bookName);
+    //void takeBackBook(String bookName);
 
     void showBook();
-    void removeBook(String id);
+    //void removeBook(String id);
 
-    void updateBook(String id, Book updatedBook);
+    //void updateBook(String id, Book updatedBook);
 
-    void listBooksByCategory(String category);
+    //void listBooksByCategory(String category);
 }

@@ -1,8 +1,8 @@
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class Author extends Person{
-    private Map<String, Book> books;
+    private Map<String, Book> books = new HashMap<>();
+    private List<Reader> readers = new ArrayList<>();
     public Author(String name) {
         super(name);
     }
@@ -11,6 +11,13 @@ public class Author extends Person{
     public void whoAreYou() {
         System.out.println("Ben yazarim.");
     }
+
+    public Author(String name, Map<String, Book> books, List<Reader> readers) {
+        super(name);
+        this.books = books;
+        this.readers = readers;
+    }
+
 
     public Author(String name, Map<String, Book> books) {
         super(name);
@@ -36,12 +43,17 @@ public class Author extends Person{
         }
     }
     public void showBook(String authorName){
-        for(Book b: books.values()){
-            if(b.getAuthor().contains(authorName)){
-                System.out.println("Author: " + authorName + " Books: " + b);
-            }else {
-                System.out.println("yazara ait kitap bulunamadi!");
+        boolean found = false;
+
+        for (Book b : books.values()) {
+            if (b.getAuthor().equalsIgnoreCase(authorName)) {
+                System.out.println("Author: " + authorName + " Book: " + b);
+                found = true;
             }
+        }
+
+        if (!found) {
+            System.out.println("Yazara ait kitap bulunamadi!");
         }
     }
 

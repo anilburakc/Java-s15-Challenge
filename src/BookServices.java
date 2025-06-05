@@ -1,23 +1,47 @@
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class BookServices {
-    private Map<String, Book> books;
-    private List<Reader> readers;
+    private Map<String, Book> books = new HashMap<>();
+    private List<Reader> readers = new ArrayList<>();
 
-    public String getTitle(Book book){
-        return book.getName();
+//    public String getTitle(Book book){
+//        return book.getName();
+//    }
+//
+//    public String getAuthor(Book book) {
+//        return book.getAuthor();
+//    }
+//
+//    public String getOwner(Book book){
+//        return book.getCurrentReader();
+//    }
+
+
+    public BookServices(Map<String, Book> books) {
+        this.books = books;
     }
 
-    public String getAuthor(Book book) {
-        return book.getAuthor();
+    public Map<String, Book> getBooks() {
+        return books;
     }
 
-    public String getOwner(Book book){
-        return book.getCurrentReader();
+    public void setBooks(Map<String, Book> books) {
+        this.books = books;
     }
+
+    public List<Reader> getReaders() {
+        return readers;
+    }
+
+    public void setReaders(List<Reader> readers) {
+        this.readers = readers;
+    }
+
     public void changeOwner(Book book, String newReader){
-        if(book.getCurrentReader().equals(null) || !book.getCurrentReader().contains(newReader)){
+        if(book.getCurrentReader() == null || !book.getCurrentReader().contains(newReader)){
             book.setCurrentReader(newReader);
             book.setStatus(false);
             System.out.println("islem basariyla gerceklesti");
@@ -44,5 +68,45 @@ public class BookServices {
             }
         }
 
+    }
+
+    public List<Book> searchByAuthor(String author){
+        List<Book> matchedBooks = new ArrayList<>();
+
+        for (Book b: books.values()){
+            if(b.getAuthor().equalsIgnoreCase(author)){
+                matchedBooks.add(b);
+            }
+        }
+
+        if (matchedBooks.isEmpty()){
+            System.out.println("Eslesen kitap bulunamadi");
+        }else {
+            System.out.println("yazar kitap: ");
+            for (Book book: matchedBooks){
+                System.out.println(book);
+            }
+        }
+        return matchedBooks;
+    }
+
+    public Book searchById(String id){
+        if(books.containsKey(id)){
+            System.out.println("kitap: " + books.get(id));
+            return books.get(id);
+        }else{
+            System.out.println("bu id kayitli kitap bulunmadi");
+            return null;
+        }
+    }
+    public Book searchByName(String name){
+        for(Book b: books.values()){
+            if(b.getName().equalsIgnoreCase(name)){
+                System.out.println("Kitap: " + b);
+                return b;
+            }
+        }
+        System.out.println("Boyle bir kitap yok");
+        return null;
     }
 }
